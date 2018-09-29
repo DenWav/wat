@@ -1,0 +1,45 @@
+# ===================================================================================
+#  The Wat CMake configuration file
+#
+#             ** File generated automatically, do not modify **
+#
+#  Usage from an external project:
+#    In your CMakeLists.txt, add these lines:
+#
+#    find_package(Wat REQUIRED)
+#    include_directories(${Wat_INCLUDE_DIRS})
+#    target_link_libraries(MY_TARGET_NAME ${Wat_LIBRARIES})
+#
+#    This file will define the following variables:
+#      - Wat_LIBRARIES             : The list of all imported targets.
+#      - Wat_INCLUDE_DIRS          : The Wat include directories.
+#      - Wat_VERSION               : The version of this Wat build: "@VERSION_PLAIN@"
+#      - Wat_VERSION_MAJOR         : Major version part of Wat_VERSION: "@VERSION_MAJOR@"
+#      - Wat_VERSION_MINOR         : Minor version part of Wat_VERSION: "@VERSION_MINOR@"
+#      - Wat_VERSION_PATCH         : Patch version part of Wat_VERSION: "@VERSION_PATCH@"
+#
+# ===================================================================================
+
+include(${CMAKE_CURRENT_LIST_DIR}/WatTargets.cmake)
+
+# ======================================================
+#  Version variables:
+# ======================================================
+
+SET(Wat_VERSION           @VERSION_PLAIN@)
+SET(Wat_VERSION_MAJOR     @VERSION_MAJOR@)
+SET(Wat_VERSION_MINOR     @VERSION_MINOR@)
+SET(Wat_VERSION_PATCH     @VERSION_PATCH@)
+
+# ======================================================
+# Include directories to add to the user project:
+# ======================================================
+
+# Provide the include directories to the caller
+set(Wat_INCLUDE_DIRS "@INCLUDE_DIR@")
+
+# ====================================================================
+# Link libraries:
+# ====================================================================
+
+set(Wat_LIBRARIES wat)

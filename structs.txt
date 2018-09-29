@@ -1,0 +1,112 @@
+StructPlayer {
+    String displayName
+    String playerListName
+    StructLocation compassTarget
+    boolean sneaking
+    boolean sprinting
+    boolean sleepingIgnored
+    int totalExperience
+    int level
+    float saturation
+    int foodLevel
+    StructLocation bedSpawnLocation
+    UUID uuid
+}
+
+StructLocation {
+    UUID worldId
+    double x
+    double y
+    double z
+    float pitch
+    float yaw
+}
+
+StructBlock {
+    String type
+    byte lightLevel
+    byte lightFromSky
+    byte lightFromBlocks
+    StructLocation location
+    StructChunk chunk
+}
+
+StructChunk {
+    int x
+    int z
+    UUID worldId
+    StructEntity[] entities
+    boolean loaded
+    boolean slimeChunk
+}
+
+StructEntity {
+    StructLocation location
+    StructVector velocity
+    double height
+    double width
+    boolean onGround
+    UUID worldId
+    int entityId
+    int fireTicks
+    int maxFireTicks
+    boolean isDead
+    boolean isValid
+    boolean isEmpty
+    float fallDistance
+    UUID uniqueId
+    int ticksLived
+    String entityType
+    boolean insideVehicle
+    UUID vehicleId
+    boolean customNameVisible
+    boolean glowing
+    boolean invulnerable
+    boolean silent
+    boolean gravity
+    int portalCooldown
+    String[] scoreboardTags
+    String pistonMoveReaction
+}
+
+StructVector {
+    double x
+    double y
+    double z
+    int blockX
+    int blockY
+    int blockZ
+}
+
+StructWorld {
+    StructChunk[] loadedChunks
+    StructEntity[] entities
+    StructEntity[] livingEntities
+    StructPlayer[] players
+    String name
+    UUID worldId
+    StructLocation spawnLocation
+    long time
+    long fullTime
+    boolean hasStorm
+    int weatherDuration
+    boolean thundering
+    int thunderDuration
+    long seed
+    boolean pvp
+    boolean allowAnimals
+    boolean allowMonsters
+    int maxHeight
+    int seaLevel
+    boolean keepSpawnInMemory
+    boolean autoSave
+    String worldType
+    boolean canGenerateStructures
+    long ticksPerAnimalSpawns
+    long ticksPerMonsterSpawns
+    int monsterSpawnLimit
+    int animalSpawnLimit
+    int waterAnimalSpawnLimit
+    int ambientSpawnLimit
+    String[] gameRules
+}

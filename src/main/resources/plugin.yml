@@ -1,0 +1,4 @@
+name: Wat
+version: @version@
+main: com.demonwav.wat.Wat
+api-version: 1.13
