@@ -10,7 +10,6 @@ import org.gradle.plugins.ide.idea.model.Jdk
 plugins {
     java
     idea
-    kotlin("jvm") version "1.2.60" apply false
     id("com.github.johnrengelman.shadow") version "2.0.4"
 }
 
@@ -33,11 +32,11 @@ sourceSets {
         configurations[compileOnlyConfigurationName].extendsFrom(configurations["lombok"])
         configurations[annotationProcessorConfigurationName].extendsFrom(configurations["lombok"])
 
-        named<SourceSet>("main") {
+        of("main") {
             compileClasspath += this@create.output
         }
 
-        named<SourceSet>("test") {
+        of("test") {
             compileClasspath += this@create.output
         }
     }
@@ -91,7 +90,7 @@ val generateStructs = tasks.register<GenerateTask>("generateStructs") {
     packageName = "com.demonwav.wat.bind.struct"
 }
 
-sourceSets.named<SourceSet>("gen") { java.srcDir(generateStructs.get().javaOutputDir) }
+sourceSets.of("gen") { java.srcDir(generateStructs) }
 
 fun createCmakeTask(name: String, debug: Boolean = false) = tasks.register<Exec>(osify(name)) {
     val rootDir = "native"
@@ -123,74 +122,75 @@ fun createCmakeTask(name: String, debug: Boolean = false) = tasks.register<Exec>
     }
 }
 
-
-fun createGenerateHeaderTask(name: String, debug: Boolean = false) = tasks.register<GenerateHeaderTask>(name) {
-    headerDirs = project.files("native/src", "native/include")
-    outputFile = if (debug) {
-        project.file("native/build-dbg/wat.h")
-    } else {
-        project.file("native/build/wat.h")
-    }
-    val inputHeaders = headerDirs.asSequence()
-            .flatMap { it -> it.walk(FileWalkDirection.TOP_DOWN) }
-            .filter { it.name.endsWith(".h") }
-            .toList()
-    inputs.files(inputHeaders)
-    outputs.file(outputFile)
-}
-
-fun createBuildNativeTask(name: String, debug: Boolean = false) = tasks.register<Exec>(osify(name)) {
-    val rootDir = "native"
-    val buildDir = if (debug) "$rootDir/build-dbg" else "$rootDir/build"
-
-    setupEnv(environment)
-
-    val allFiles = project.fileTree("$rootDir/wat/src").asSequence() + project.fileTree("$rootDir/wat/include")
-    val inputFiles = allFiles.filter { it.name.endsWith(".h") || it.name.endsWith(".c") }.toList()
-
-    inputs.files(inputFiles)
-
-    commandLine = if (OperatingSystem.current().isWindows) {
-        outputs.file("$buildDir/Release/${project.name}.dll")
-        val type = if (debug) "Debug" else "Release"
-        listOf("cmd", "/C", "MSBuild.exe", "wat.sln", "/t:Rebuild", "/p:Configuration=$type", "/m", "/clp:ForceConsoleColor")
-    } else {
-        if (OperatingSystem.current().isMacOsX) {
-            outputs.file("$buildDir/lib${project.name}.dylib")
+fun createGenerateHeaderTask(name: String, debug: Boolean = false, configure: GenerateHeaderTask.() -> Unit) =
+    tasks.register<GenerateHeaderTask>(name) {
+        headerDirs = project.files("native/src", "native/include")
+        outputFile = if (debug) {
+            project.file("native/build-dbg/wat.h")
         } else {
-            outputs.file("$buildDir/lib${project.name}.so")
+            project.file("native/build/wat.h")
         }
-        val jCount = Runtime.getRuntime().availableProcessors() + 1
-        listOf("make", "-j$jCount")
+        val inputHeaders = headerDirs.asSequence()
+                .flatMap { it -> it.walk(FileWalkDirection.TOP_DOWN) }
+                .filter { it.name.endsWith(".h") }
+                .toList()
+        inputs.files(inputHeaders)
+        outputs.file(outputFile)
+
+        configure()
     }
 
-    doFirst {
-        println("Calling build command: $executable ${args!!.joinToString(" ") { "'$it'" }}")
-    }
+fun createBuildNativeTask(name: String, debug: Boolean = false, configure: Exec.() -> Unit) =
+    tasks.register<Exec>(osify(name)) {
+        val rootDir = "native"
+        val buildDir = if (debug) "$rootDir/build-dbg" else "$rootDir/build"
 
-    workingDir = file(buildDir)
-}
+        setupEnv(environment)
+
+        val allFiles = project.fileTree("$rootDir/wat/src").asSequence() + project.fileTree("$rootDir/wat/include")
+        val inputFiles = allFiles.filter { it.name.endsWith(".h") || it.name.endsWith(".c") }.toList()
+
+        inputs.files(inputFiles)
+
+        commandLine = if (OperatingSystem.current().isWindows) {
+            outputs.file("$buildDir/Release/${project.name}.dll")
+            val type = if (debug) "Debug" else "Release"
+            listOf("cmd", "/C", "MSBuild.exe", "wat.sln", "/t:Rebuild", "/p:Configuration=$type", "/m", "/clp:ForceConsoleColor")
+        } else {
+            if (OperatingSystem.current().isMacOsX) {
+                outputs.file("$buildDir/lib${project.name}.dylib")
+            } else {
+                outputs.file("$buildDir/lib${project.name}.so")
+            }
+            val jCount = Runtime.getRuntime().availableProcessors() + 1
+            listOf("make", "-j$jCount")
+        }
+
+        doFirst {
+            println("Calling build command: $executable ${args!!.joinToString(" ") { "'$it'" }}")
+        }
+
+        workingDir = file(buildDir)
+
+        configure()
+    }
 
 val callCmakeTask = createCmakeTask("callCmake")
 val callCmakeDebugTask = createCmakeTask("callCmake-debug", true)
 
-val generateHeaderTask = createGenerateHeaderTask("generateHeader").apply { configure { dependsOn(callCmakeTask) } }
-val generateHeaderDebugTask = createGenerateHeaderTask("generateHeader-debug", true).apply { configure { dependsOn(callCmakeDebugTask) } }
+val generateHeaderTask = createGenerateHeaderTask("generateHeader") { dependsOn(callCmakeTask) }
+val generateHeaderDebugTask = createGenerateHeaderTask("generateHeader-debug", true) { dependsOn(callCmakeDebugTask) }
 
-val nativeTask = createBuildNativeTask("buildNative").apply { configure { dependsOn(generateHeaderTask) } }
-val nativeDebugTask = createBuildNativeTask("buildNative-debug", true).apply { configure { dependsOn(generateHeaderDebugTask) } }
+val nativeTask = createBuildNativeTask("buildNative") { dependsOn(generateHeaderTask) }
+val nativeDebugTask = createBuildNativeTask("buildNative-debug", true) { dependsOn(generateHeaderDebugTask) }
 
 shadowJar {
     baseName = "wat"
     classifier = ""
     version = ""
     from(nativeTask, sourceSets["gen"].output)
-}
 
-shadowJar.configure {
-    artifacts {
-        this@artifacts.add("archives", this@configure)
-    }
+    artifacts.add("archives", this)
 }
 
 val shadowJarDebug = tasks.register<ShadowJar>("shadowJarDebug") {
@@ -200,6 +200,8 @@ val shadowJarDebug = tasks.register<ShadowJar>("shadowJarDebug") {
 }
 
 tasks.register("buildDebug") {
+    group = "build"
+    description = "Assembles and tests this project with debug native code."
     dependsOn(shadowJarDebug)
 }
 
@@ -209,7 +211,9 @@ processResources {
     }
 }
 
-clean { delete(generateStructs, "native/build", "native/build-dbg", "native/include", "buildSrc/gen", "buildSrc/build") }
+clean {
+    delete(generateStructs, "native/build", "native/build-dbg", "native/include", "buildSrc/gen", "buildSrc/build")
+}
 
 tasks.withType<JavaCompile>().configureEach { dependsOn(generateStructs) }
 
@@ -238,3 +242,7 @@ fun osify(name: String): String {
 
 inline fun <reified T : Task> TaskContainer.existing() = existing(T::class)
 inline fun <reified T : Task> TaskContainer.register(name: String, configuration: Action<in T>) = register(name, T::class, configuration)
+inline fun <reified T> NamedDomainObjectContainer<T>.of(name: String, noinline configuration: T.() -> Unit) =
+    named(name).apply {
+        configure(configuration)
+    }

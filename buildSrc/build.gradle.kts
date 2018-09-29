@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.2.60"
+    id("org.jetbrains.kotlin.jvm") version "1.2.61"
     `kotlin-dsl`
     idea
 }
@@ -18,16 +18,6 @@ val antlrDestinationDir = "gen"
 
 configurations {
     register("antlr4Compile")
-    register("antlr4") {
-        description = "ANTLR4"
-    }
-}
-
-sourceSets.create("antlr4") {
-    configurations.named<Configuration>(compileOnlyConfigurationName) {
-        extendsFrom(configurations["antlr4"])
-    }
-    java.srcDirs(antlrSource, antlrDestinationDir)
 }
 
 repositories {
@@ -48,7 +38,7 @@ val antlrOutputDir = tasks.register("antlrOutputDir") {
 
 val generateGrammarSource = tasks.register<JavaExec>("generateGrammarSource") {
     group = "antlr4"
-    description = "Generates JAva sources fom ANTLR4 grammars"
+    description = "Generates Java sources fom ANTLR4 grammars"
     dependsOn(antlrOutputDir)
     inputs.dir(antlrSource)
     outputs.dir(antlrDestinationDir)
@@ -59,8 +49,8 @@ val generateGrammarSource = tasks.register<JavaExec>("generateGrammarSource") {
     args = listOf("-o", "$antlrDestinationDir/$pkg", "-visitor", "-package", grammarPackage, *grammars)
 }
 
-sourceSets.named<SourceSet>("main") {
-    java.srcDir(generateGrammarSource)
+sourceSets.of("main") {
+    java.srcDirs(antlrSource, generateGrammarSource)
 }
 
 clean { delete(generateGrammarSource) }
@@ -75,3 +65,7 @@ idea {
 
 inline fun <reified T : Task> TaskContainer.existing() = existing(T::class)
 inline fun <reified T : Task> TaskContainer.register(name: String, configuration: Action<in T>) = register(name, T::class, configuration)
+inline fun <reified T> NamedDomainObjectContainer<T>.of(name: String, noinline configuration: T.() -> Unit) =
+    named(name).apply {
+        configure(configuration)
+    }

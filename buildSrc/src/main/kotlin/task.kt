@@ -34,7 +34,6 @@ open class GenerateTask : DefaultTask() {
     @get:OutputDirectory
     lateinit var javaOutputDir: File
 
-    @get:OutputDirectory
     lateinit var nativeOutputDir: File
 
     @TaskAction
