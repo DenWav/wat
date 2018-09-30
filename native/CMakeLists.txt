@@ -8,9 +8,9 @@ set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
 set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-IF (WIN32)
+if(WIN32)
     SET(ENV{Path} "$ENV{JAVA_HOME}\\bin;$ENV{Path}")
-ENDIF()
+endif()
 
 set(srcpath ${CMAKE_SOURCE_DIR}/src)
 set(includepath ${CMAKE_SOURCE_DIR}/include)
@@ -35,7 +35,7 @@ configure_file(
 
 export(TARGETS wat FILE ${CMAKE_BINARY_DIR}/WatTargets.cmake)
 
-if (MSVC)
+if(MSVC)
     install(
         TARGETS wat
         EXPORT WatTargets
@@ -63,3 +63,17 @@ install(
     ${CMAKE_BINARY_DIR}/WatConfig.cmake
     DESTINATION cmake
 )
+
+# uninstall target
+if(NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY
+    )
+
+    add_custom_target(
+        uninstall
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
+    )
+endif()
