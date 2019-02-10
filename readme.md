@@ -6,10 +6,9 @@ Native, C-based Bukkit plugin API. Please don't actually use this.
 
 ### General
 
-This plugin requires Java 11. This is purely to hopefully keep the number of people who try to use this lower. I
-recommend [Azule Zulu](https://www.azul.com/downloads/zulu/).
+This plugin requires Java 12. This is purely to hopefully keep the number of people who try to use this lower.
 
-The `JAVA_HOME` environment variable must be set to point to the JDK 11 properly for `cmake` to properly pick up the
+The `JAVA_HOME` environment variable must be set to point to the JDK 12 properly for `cmake` to properly pick up the
 correct JDK location at build time.
 
 ### Linux
@@ -51,18 +50,18 @@ Note you'll need to re-do this setup any time Visual Studio updates.
 Make sure the `JAVA_HOME` environment variable is set properly in the above `env.txt`.
 
 Check to make sure you don't have any registry keys in `HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\` pointing to any non Java
-11 JDK. This is handled by the `JAVA_HOME` environment variable, so you don't need these registry keys at all, and you
+12 JDK. This is handled by the `JAVA_HOME` environment variable, so you don't need these registry keys at all, and you
 should delete them. Some JDK installers add these keys. Unfortunately, though it shouldn't behave this way, `cmake`'s
 `FindJNI` will take the values in the registry above all other configurations and paths. If you don't delete these keys,
 it won't select the right JDK and won't build.
 
-It is also important in your `env.txt` file to list your JDK 11 path first, since `cmake` will also take the output of
+It is also important in your `env.txt` file to list your JDK 12 path first, since `cmake` will also take the output of
 calling `java -version` above the `JAVA_HOME` environment variable. This isn't what the documentation for `FindJNI` says
 or how it should behave, but that is what it does on Windows. The easiest way of doing this is something like the
 following:
 
 ```
-JAVA_HOME=C:\Program Files\Zulu\zulu-11
+JAVA_HOME=C:\Program Files\Zulu\zulu-12
 Path=%JAVA_HOME%\bin;%Path%
 ```
 
