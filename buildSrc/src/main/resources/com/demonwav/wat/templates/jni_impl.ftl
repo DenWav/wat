@@ -65,7 +65,7 @@ void delete_${struct.nativeName}_reference() {
     (*jenv)->DeleteGlobalRef(jenv, ${struct.nativeName}_java_class);
 }
 
-int load_${struct.nativeName}_data(struct ${struct.nativeName} **dest, jobject obj) {
+unsigned int load_${struct.nativeName}_data(struct ${struct.nativeName} **dest, jobject obj) {
     if (dest == NULL) {
         return MARSHAL_FAILURE;
     }
@@ -95,7 +95,7 @@ int load_${struct.nativeName}_data(struct ${struct.nativeName} **dest, jobject o
         <#assign max_length = field.nativeName?length>
     </#if>
 </#list>
-    int status = MARSHAL_SUCCESS;
+    unsigned int status = MARSHAL_SUCCESS;
 <#list struct.fields as field>
     <#if StringType.isInstance(field.type)>
     /* ${field.nativeName?right_pad(max_length)} */ status |= get_java_string(&(*dest)->${field.nativeName}, jenv, obj, ${struct.nativeName}_java_get_${field.nativeName});
@@ -115,7 +115,7 @@ int load_${struct.nativeName}_data(struct ${struct.nativeName} **dest, jobject o
     return status;
 }
 
-int create_${struct.nativeName}_java(jobject *dest, struct ${struct.nativeName} *src) {
+unsigned int create_${struct.nativeName}_java(jobject *dest, struct ${struct.nativeName} *src) {
     if (dest == NULL) {
         return MARSHAL_FAILURE;
     }
@@ -150,7 +150,7 @@ int create_${struct.nativeName}_java(jobject *dest, struct ${struct.nativeName} 
         <#assign max_length = field.nativeName?length>
     </#if>
 </#list>
-    int status = MARSHAL_SUCCESS;
+    unsigned int status = MARSHAL_SUCCESS;
 <#list struct.fields as field>
     <#if StringType.isInstance(field.type)>
     /* ${field.nativeName?right_pad(max_length)} */ status |= set_java_string(jenv, *dest, ${struct.nativeName}_java_set_${field.nativeName}, src->${field.nativeName});

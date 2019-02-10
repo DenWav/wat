@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int get_java_string(char **dest, JNIEnv *env, jobject obj, jmethodID method) {
-    int res = MARSHAL_SUCCESS;
+unsigned int get_java_string(char **dest, JNIEnv *env, jobject obj, jmethodID method) {
+    unsigned int res = MARSHAL_SUCCESS;
 
     jobject temp = (*env)->CallObjectMethod(env, obj, method);
     const char *chars = NULL;
@@ -37,8 +37,8 @@ int get_java_string(char **dest, JNIEnv *env, jobject obj, jmethodID method) {
     return res;
 }
 
-int set_java_string(JNIEnv *env, jobject obj, jmethodID method, const char *val) {
-    int res = MARSHAL_SUCCESS;
+unsigned int set_java_string(JNIEnv *env, jobject obj, jmethodID method, const char *val) {
+    unsigned int res = MARSHAL_SUCCESS;
 
     jstring temp = (*env)->NewStringUTF(env, val);
     (*env)->CallVoidMethod(env, obj, method, temp);
@@ -52,7 +52,7 @@ int set_java_string(JNIEnv *env, jobject obj, jmethodID method, const char *val)
 }
 
 #define GET_PRIMITIVE(type, jvm_type, jni_type, jni_method)                         \
-    int get_##jvm_type(type *dest, JNIEnv *env, jobject obj, jmethodID method) {    \
+    unsigned int get_##jvm_type(type *dest, JNIEnv *env, jobject obj, jmethodID method) {    \
         jni_type res = (*env)->jni_method(env, obj, method);                        \
                                                                                     \
         if ((*env)->ExceptionCheck(env)) {                                          \
@@ -73,7 +73,7 @@ GET_PRIMITIVE(float, float, jfloat, CallFloatMethod)
 GET_PRIMITIVE(double, double, jdouble, CallDoubleMethod)
 
 #define SET_PRIMITIVE(type, jvm_type, jni_type)                                     \
-    int set_##jvm_type(JNIEnv *env, jobject obj, jmethodID method, type val) {      \
+    unsigned int set_##jvm_type(JNIEnv *env, jobject obj, jmethodID method, type val) {      \
         jni_type param = val;                                                       \
         (*env)->CallVoidMethod(env, obj, method, param);                            \
                                                                                     \
@@ -92,7 +92,7 @@ SET_PRIMITIVE(int64_t, long, jlong);
 SET_PRIMITIVE(float, float, jfloat);
 SET_PRIMITIVE(double, double, double);
 
-int get_object(jobject *dest, JNIEnv *env, jobject obj, jmethodID method) {
+unsigned int get_object(jobject *dest, JNIEnv *env, jobject obj, jmethodID method) {
     *dest = (*env)->CallObjectMethod(env, obj, method);
 
     if ((*env)->ExceptionCheck(env)) {
@@ -103,7 +103,7 @@ int get_object(jobject *dest, JNIEnv *env, jobject obj, jmethodID method) {
     return MARSHAL_SUCCESS;
 }
 
-int set_object(JNIEnv *env, jobject obj, jmethodID method, jobject val) {
+unsigned int set_object(JNIEnv *env, jobject obj, jmethodID method, jobject val) {
     (*env)->CallVoidMethod(env, obj, method, val);
 
     if ((*env)->ExceptionCheck(env)) {

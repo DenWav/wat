@@ -50,7 +50,7 @@ static inline int64_t from_array(const int8_t *bytes, const int index) {
     return res;
 }
 
-int load_uuid_data(uuid **dest, jobject obj) {
+unsigned int load_uuid_data(uuid **dest, jobject obj) {
     if (dest == NULL) {
         return MARSHAL_FAILURE;
     }
@@ -82,7 +82,7 @@ int load_uuid_data(uuid **dest, jobject obj) {
     return status;
 }
 
-int create_uuid_java(jobject *dest, uuid *src) {
+unsigned int create_uuid_java(jobject *dest, uuid *src) {
     if (dest == NULL) {
         return MARSHAL_FAILURE;
     }

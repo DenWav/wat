@@ -39,7 +39,7 @@ void delete_jni_reference() {
     delete_exception_reference();
 }
 
-int load_string_array_data(struct string_array **dest, jobject obj) {
+unsigned int load_string_array_data(struct string_array **dest, jobject obj) {
     if (dest == NULL) {
         return MARSHAL_FAILURE;
     }
@@ -66,7 +66,7 @@ int load_string_array_data(struct string_array **dest, jobject obj) {
     (*dest)->alloc = length;
     (*dest)->length = length;
 
-    int status = MARSHAL_SUCCESS;
+    unsigned int status = MARSHAL_SUCCESS;
     for (int i = 0; i < length; i++) {
         jobject element = (*jenv)->GetObjectArrayElement(jenv, obj, i);
         const char *text = (*jenv)->GetStringUTFChars(jenv, element, NULL);
@@ -86,7 +86,7 @@ int load_string_array_data(struct string_array **dest, jobject obj) {
     return status;
 }
 
-int create_string_array_java(jobject *dest, struct string_array *src) {
+unsigned int create_string_array_java(jobject *dest, struct string_array *src) {
     if (dest == NULL) {
         return MARSHAL_FAILURE;
     }
@@ -113,7 +113,7 @@ int create_string_array_java(jobject *dest, struct string_array *src) {
         return MARSHAL_ALLOC_FAILURE;
     }
 
-    int status = MARSHAL_SUCCESS;
+    unsigned int status = MARSHAL_SUCCESS;
     for (int i = 0; i < length; i++) {
         if (src->array[i] == NULL) {
             (*jenv)->SetObjectArrayElement(jenv, *dest, i, NULL);

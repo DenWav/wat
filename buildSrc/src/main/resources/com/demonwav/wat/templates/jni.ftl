@@ -20,8 +20,8 @@ void delete_jni_reference();
 void setup_uuid_reference(JNIEnv *env);
 void delete_uuid_reference();
 
-int load_uuid_data(uuid **dest, jobject obj);
-int create_uuid_java(jobject *dest, uuid *src);
+unsigned int load_uuid_data(uuid **dest, jobject obj);
+unsigned int create_uuid_java(jobject *dest, uuid *src);
 <#list structs as struct>
 
 void setup_${struct.nativeName}_reference(JNIEnv *env);
@@ -29,90 +29,90 @@ void delete_${struct.nativeName}_reference();
 </#list>
 <#list loadStructs as load>
 
-int load_${load.nativeName}_data(struct ${load.nativeName} **dest, jobject obj);
-int create_${load.nativeName}_java(jobject *dest, struct ${load.nativeName} *src);
+unsigned int load_${load.nativeName}_data(struct ${load.nativeName} **dest, jobject obj);
+unsigned int create_${load.nativeName}_java(jobject *dest, struct ${load.nativeName} *src);
 </#list>
 
-#define CREATE_JAVA_ARRAY(native_name)                                                       \
-    int create_##native_name##_array_java(jobject *dest, struct native_name##_array *src) {  \
-        if (dest == NULL) {                                                                  \
-            return MARSHAL_FAILURE;                                                          \
-        }                                                                                    \
-                                                                                             \
-        if (src == NULL) {                                                                   \
-            *dest = NULL;                                                                    \
-            return MARSHAL_SUCCESS;                                                          \
-        }                                                                                    \
-                                                                                             \
-        const int length = src->length;                                                      \
-                                                                                             \
-        *dest = (*jenv)->NewObjectArray(jenv, length, native_name##_java_class, NULL);       \
-        if ((*jenv)->ExceptionCheck(jenv)) {                                                 \
-            if (*dest == NULL) {                                                             \
-                (*jenv)->DeleteLocalRef(jenv, *dest);                                        \
-                return MARSHAL_THROWN_EX;                                                    \
-            }                                                                                \
-        }                                                                                    \
-                                                                                             \
-        if (*dest == NULL) {                                                                 \
-            return MARSHAL_ALLOC_FAILURE;                                                    \
-        }                                                                                    \
-                                                                                             \
-        int status = MARSHAL_SUCCESS;                                                        \
-        for (int i = 0; i < length; i++) {                                                   \
-            jobject element;                                                                 \
-            status |= create_##native_name##_java(&element, src->array[i]);                  \
-            (*jenv)->SetObjectArrayElement(jenv, *dest, i, element);                         \
-            (*jenv)->DeleteLocalRef(jenv, element);                                          \
-        }                                                                                    \
-                                                                                             \
-        if (status != MARSHAL_SUCCESS) {                                                     \
-            (*jenv)->DeleteLocalRef(jenv, *dest);                                            \
-            *dest = NULL;                                                                    \
-        }                                                                                    \
-                                                                                             \
-        return status;                                                                       \
+#define CREATE_JAVA_ARRAY(native_name)                                                                \
+    unsigned int create_##native_name##_array_java(jobject *dest, struct native_name##_array *src) {  \
+        if (dest == NULL) {                                                                           \
+            return MARSHAL_FAILURE;                                                                   \
+        }                                                                                             \
+                                                                                                      \
+        if (src == NULL) {                                                                            \
+            *dest = NULL;                                                                             \
+            return MARSHAL_SUCCESS;                                                                   \
+        }                                                                                             \
+                                                                                                      \
+        const int length = src->length;                                                               \
+                                                                                                      \
+        *dest = (*jenv)->NewObjectArray(jenv, length, native_name##_java_class, NULL);                \
+        if ((*jenv)->ExceptionCheck(jenv)) {                                                          \
+            if (*dest == NULL) {                                                                      \
+                (*jenv)->DeleteLocalRef(jenv, *dest);                                                 \
+                return MARSHAL_THROWN_EX;                                                             \
+            }                                                                                         \
+        }                                                                                             \
+                                                                                                      \
+        if (*dest == NULL) {                                                                          \
+            return MARSHAL_ALLOC_FAILURE;                                                             \
+        }                                                                                             \
+                                                                                                      \
+        unsigned int status = MARSHAL_SUCCESS;                                                        \
+        for (int i = 0; i < length; i++) {                                                            \
+            jobject element;                                                                          \
+            status |= create_##native_name##_java(&element, src->array[i]);                           \
+            (*jenv)->SetObjectArrayElement(jenv, *dest, i, element);                                  \
+            (*jenv)->DeleteLocalRef(jenv, element);                                                   \
+        }                                                                                             \
+                                                                                                      \
+        if (status != MARSHAL_SUCCESS) {                                                              \
+            (*jenv)->DeleteLocalRef(jenv, *dest);                                                     \
+            *dest = NULL;                                                                             \
+        }                                                                                             \
+                                                                                                      \
+        return status;                                                                                \
     }
 
-#define LOAD_ARRAY_DATA(native_name)                                                         \
-    int load_##native_name##_array_data(struct native_name##_array **dest, jobject obj) {    \
-        if (dest == NULL) {                                                                  \
-            return MARSHAL_FAILURE;                                                          \
-        }                                                                                    \
-                                                                                             \
-        if (obj == NULL) {                                                                   \
-            *dest = NULL;                                                                    \
-            return MARSHAL_SUCCESS;                                                          \
-        }                                                                                    \
-                                                                                             \
-        *dest = WALLOC(struct native_name##_array, 1);                                       \
-        if (*dest == NULL) {                                                                 \
-            return MARSHAL_ALLOC_FAILURE;                                                    \
-        }                                                                                    \
-                                                                                             \
-        const jsize length = (*jenv)->GetArrayLength(jenv, obj);                             \
-                                                                                             \
-        (*dest)->array = WALLOC(struct native_name *, length);                               \
-        if ((*dest)->array == NULL) {                                                        \
-            WAT_FREE(*dest);                                                                 \
-            *dest = NULL;                                                                    \
-            return MARSHAL_ALLOC_FAILURE;                                                    \
-        }                                                                                    \
-                                                                                             \
-        (*dest)->alloc = length;                                                             \
-        (*dest)->length = length;                                                            \
-                                                                                             \
-        int status = MARSHAL_SUCCESS;                                                        \
-        for (int i = 0; i < length; i++) {                                                   \
-            jobject element = (*jenv)->GetObjectArrayElement(jenv, obj, i);                  \
-            status |= load_##native_name##_data(&(*dest)->array[i], element);                \
-        }                                                                                    \
-                                                                                             \
-        if (status != MARSHAL_SUCCESS) {                                                     \
-            delete_##native_name##_array(dest);                                              \
-        }                                                                                    \
-                                                                                             \
-        return status;                                                                       \
+#define LOAD_ARRAY_DATA(native_name)                                                                  \
+    unsigned int load_##native_name##_array_data(struct native_name##_array **dest, jobject obj) {    \
+        if (dest == NULL) {                                                                           \
+            return MARSHAL_FAILURE;                                                                   \
+        }                                                                                             \
+                                                                                                      \
+        if (obj == NULL) {                                                                            \
+            *dest = NULL;                                                                             \
+            return MARSHAL_SUCCESS;                                                                   \
+        }                                                                                             \
+                                                                                                      \
+        *dest = WALLOC(struct native_name##_array, 1);                                                \
+        if (*dest == NULL) {                                                                          \
+            return MARSHAL_ALLOC_FAILURE;                                                             \
+        }                                                                                             \
+                                                                                                      \
+        const jsize length = (*jenv)->GetArrayLength(jenv, obj);                                      \
+                                                                                                      \
+        (*dest)->array = WALLOC(struct native_name *, length);                                        \
+        if ((*dest)->array == NULL) {                                                                 \
+            WAT_FREE(*dest);                                                                          \
+            *dest = NULL;                                                                             \
+            return MARSHAL_ALLOC_FAILURE;                                                             \
+        }                                                                                             \
+                                                                                                      \
+        (*dest)->alloc = length;                                                                      \
+        (*dest)->length = length;                                                                     \
+                                                                                                      \
+        unsigned int status = MARSHAL_SUCCESS;                                                        \
+        for (int i = 0; i < length; i++) {                                                            \
+            jobject element = (*jenv)->GetObjectArrayElement(jenv, obj, i);                           \
+            status |= load_##native_name##_data(&(*dest)->array[i], element);                         \
+        }                                                                                             \
+                                                                                                      \
+        if (status != MARSHAL_SUCCESS) {                                                              \
+            delete_##native_name##_array(dest);                                                       \
+        }                                                                                             \
+                                                                                                      \
+        return status;                                                                                \
     }
 
 #endif // ${defName}

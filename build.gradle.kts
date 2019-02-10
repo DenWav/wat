@@ -2,15 +2,12 @@ import com.demonwav.wat.GenerateHeaderTask
 import com.demonwav.wat.GenerateTask
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.apache.tools.ant.filters.ReplaceTokens
-import java.nio.file.Files
-import java.nio.file.Paths
 import org.gradle.internal.os.OperatingSystem
-import org.gradle.plugins.ide.idea.model.Jdk
 
 plugins {
     java
     idea
-    id("com.github.johnrengelman.shadow") version "2.0.4"
+    id("com.github.johnrengelman.shadow") version "4.0.4"
 }
 
 val classes by tasks.existing()
@@ -53,8 +50,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_12
+    targetCompatibility = JavaVersion.VERSION_12
 }
 
 tasks.withType<JavaCompile> {
@@ -185,16 +182,13 @@ val nativeTask = createBuildNativeTask("buildNative") { dependsOn(generateHeader
 val nativeDebugTask = createBuildNativeTask("buildNative-debug", true) { dependsOn(generateHeaderDebugTask) }
 
 shadowJar {
-    baseName = "wat"
-    classifier = ""
-    version = ""
+    archiveFileName.set("wat.jar")
     from(nativeTask, sourceSets["gen"].output)
-
     artifacts.add("archives", this)
 }
 
 val shadowJarDebug = tasks.register<ShadowJar>("shadowJarDebug") {
-    archiveName = "wat-debug.jar"
+    archiveFileName.set("wat-debug.jar")
     from(nativeDebugTask, sourceSets["gen"].output, sourceSets["main"].output)
     configurations = listOf(project.configurations["runtime"])
 }

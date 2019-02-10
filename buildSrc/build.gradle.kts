@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.2.61"
-    `kotlin-dsl`
+    id("org.jetbrains.kotlin.jvm") version "1.3.20"
+    `kotlin-dsl` version "1.1.3"
     idea
 }
 

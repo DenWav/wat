@@ -7,12 +7,7 @@ import freemarker.template.Configuration
 import freemarker.template.TemplateExceptionHandler
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import java.io.File
 import java.nio.file.FileVisitOption
 import java.nio.file.Files
@@ -34,6 +29,7 @@ open class GenerateTask : DefaultTask() {
     @get:OutputDirectory
     lateinit var javaOutputDir: File
 
+    @get:OutputDirectory
     lateinit var nativeOutputDir: File
 
     @TaskAction
@@ -57,6 +53,7 @@ open class GenerateHeaderTask : DefaultTask() {
 
     lateinit var headerDirs: FileCollection
 
+    @get:OutputFile
     lateinit var outputFile: File
 
     @TaskAction

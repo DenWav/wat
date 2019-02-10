@@ -36,7 +36,7 @@ void delete_exception_reference() {
     (*jenv)->DeleteGlobalRef(jenv, illegal_state_class);
 }
 
-bool throw_from_marshal_status(int status) {
+bool throw_from_marshal_status(unsigned int status) {
     if ((status & MARSHAL_THROWN_EX) != 0) {
         return true;
     }

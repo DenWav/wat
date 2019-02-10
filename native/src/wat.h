@@ -9,7 +9,7 @@
 
 #define WALLOC(type, amount) malloc(sizeof(type) * amount)
 
-#define WAT_FREE(ptr) if (ptr != NULL) free(ptr)
+#define WAT_FREE(ptr) free(ptr)
 
 WAT_EXPORT_START
 #ifdef _WIN32

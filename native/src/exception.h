@@ -13,6 +13,6 @@ void throw_generic(const char *class, const char *message);
 void setup_exception_reference(JNIEnv *env);
 void delete_exception_reference();
 
-bool throw_from_marshal_status(int status);
+bool throw_from_marshal_status(unsigned int status);
 
 #endif // WAT_EXCEPTION_H
