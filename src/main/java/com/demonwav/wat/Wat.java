@@ -3,8 +3,10 @@ package com.demonwav.wat;
 import com.demonwav.wat.bind.NativeInit;
 import com.demonwav.wat.bind.NativeLogger;
 import com.demonwav.wat.event.PlayerJoinListener;
+import com.demonwav.wat.event.SignChangeListener;
 import org.apache.commons.lang.SystemUtils;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -50,7 +52,13 @@ public final class Wat extends JavaPlugin implements Listener {
             NativeInit.init(plugins);
         }
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        registerEvents();
+    }
+
+    private void registerEvents() {
+        final PluginManager manager = getServer().getPluginManager();
+        manager.registerEvents(new PlayerJoinListener(), this);
+        manager.registerEvents(new SignChangeListener(), this);
     }
 
     @Override

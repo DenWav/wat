@@ -10,7 +10,7 @@
 
 JNIEXPORT void JNICALL Java_com_demonwav_wat_event_PlayerJoinListener_onPlayerJoin0(JNIEnv *env, jclass class, jobject player_obj, jstring join_message) {
     struct player *player;
-    int status = load_player_data(&player, player_obj);
+    unsigned int status = load_player_data(&player, player_obj);
     if (throw_from_marshal_status(status)) {
         return;
     }

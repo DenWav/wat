@@ -3,6 +3,7 @@
 
 #include "wat.h"
 
+#include <jni.h>
 #include <stdarg.h>
 
 WAT_EXPORT_START
@@ -15,7 +16,7 @@ WAT_EXPORT_END
 void init_logger_instance(void *logger_obj);
 void close_logger_instance();
 
-void setup_logger_reference(void **env);
+void setup_logger_reference(JNIEnv *env);
 void delete_logger_reference();
 
 #endif // WAT_LOGGER_H

@@ -14,29 +14,32 @@
 static JNIEnv *jenv;
 
 void setup_jni_reference(JNIEnv *env) {
-    setup_uuid_reference(env);
-    setup_logger_reference((void**) env);
+    jenv = env;
     setup_block_reference(env);
     setup_chunk_reference(env);
     setup_entity_reference(env);
+    setup_exception_reference(env);
     setup_location_reference(env);
+    setup_logger_reference(env);
     setup_player_reference(env);
+    setup_sign_change_event_reference(env);
+    setup_uuid_reference(env);
     setup_vector_reference(env);
     setup_world_reference(env);
-    setup_exception_reference(env);
 }
 
 void delete_jni_reference() {
-    delete_uuid_reference();
-    delete_logger_reference();
     delete_block_reference();
     delete_chunk_reference();
     delete_entity_reference();
+    delete_exception_reference();
     delete_location_reference();
+    delete_logger_reference();
     delete_player_reference();
+    delete_sign_change_event_reference();
+    delete_uuid_reference();
     delete_vector_reference();
     delete_world_reference();
-    delete_exception_reference();
 }
 
 unsigned int load_string_array_data(struct string_array **dest, jobject obj) {
@@ -56,7 +59,7 @@ unsigned int load_string_array_data(struct string_array **dest, jobject obj) {
 
     const jsize length = (*jenv)->GetArrayLength(jenv, obj);
 
-    (*dest)->array = WALLOC(struct native_name *, length);
+    (*dest)->array = WALLOC(char *, length);
     if ((*dest)->array == NULL) {
         WAT_FREE(*dest);
         *dest = NULL;

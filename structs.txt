@@ -110,3 +110,9 @@ StructWorld {
     int ambientSpawnLimit
     String[] gameRules
 }
+
+StructSignChangeEvent {
+    StructPlayer player
+    String[] lines
+    boolean cancel
+}

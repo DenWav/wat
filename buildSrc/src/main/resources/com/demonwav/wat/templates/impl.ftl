@@ -61,6 +61,14 @@ WATEXPORT void WATCALL delete_${struct.nativeName}(struct ${struct.nativeName} *
         ${field.type.baseType.nativeName} l = (*s)->${field.nativeName}[i];
         delete_${field.type.baseType.baseNativeName}(&l);
     }
+    WAT_FREE((*s)->${field.nativeName});
+        <#elseif StringType.isInstance(field.type.baseType) || UuidType.isInstance(field.type.baseType)>
+    const int length = (*s)->length;
+    for (int i = 0; i < length; i++) {
+        ${field.type.baseType.nativeName} l = (*s)->${field.nativeName}[i];
+        WAT_FREE(l);
+    }
+    WAT_FREE((*s)->${field.nativeName});
         <#else>
     WAT_FREE((*s)->${field.nativeName});
         </#if>

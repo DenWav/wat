@@ -70,7 +70,7 @@ void close_logger_instance() {
     (*jenv)->DeleteGlobalRef(jenv, logger);
 }
 
-void setup_logger_reference(void **env) {
+void setup_logger_reference(JNIEnv *env) {
     jenv = (JNIEnv*) env;
 
     jclass temp_java_util_logging_logger = (*jenv)->FindClass(jenv, "java/util/logging/Logger");
